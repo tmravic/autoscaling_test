@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: TAC VPC setup with subnets, route table, and Internet Gateway
+
+Resources:
+  WebSchoolVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 172.28.51.0/24
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: VPC_WEBSCHOOL
+
+  IGWWebSchool:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: IGW_WEBSCHOOL
+
+  IGWAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref WebSchoolVPC
+      InternetGatewayId: !Ref IGWWebSchool
+
+  MainRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref WebSchoolVPC
+      Tags:
+        - Key: Name
+          Value: MAIN_WEBSCHOOL_RT
+
+  RouteToInternet:
+    Type: AWS::EC2::Route
+    DependsOn: IGWAttachment
+    Properties:
+      RouteTableId: !Ref MainRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref IGWWebSchool
+
+  SubnetWebSchool1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref WebSchoolVPC
+      CidrBlock: 172.28.51.64/26
+      AvailabilityZone: ap-northeast-1a
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: VPC_WEBSCHOOL_SUB1
+
+  SubnetWebSchool2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref WebSchoolVPC
+      CidrBlock: 172.28.51.0/26
+      AvailabilityZone: ap-northeast-1a
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: VPC_WEBSCHOOL_SUB2
+
+  SubnetWebSchool3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref WebSchoolVPC
+      CidrBlock: 172.28.51.128/26
+      AvailabilityZone: ap-northeast-1c
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: VPC_WEBSCHOOL_SUB3
+
+  SubnetWebSchool4:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref WebSchoolVPC
+      CidrBlock: 172.28.51.192/26
+      AvailabilityZone: ap-northeast-1c
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: VPC_WEBSCHOOL_SUB4
+
+  SubnetRouteAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetWebSchool1
+      RouteTableId: !Ref MainRouteTable
+
+  SubnetRouteAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetWebSchool2
+      RouteTableId: !Ref MainRouteTable
+
+  SubnetRouteAssociation3:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetWebSchool3
+      RouteTableId: !Ref MainRouteTable
+
+  SubnetRouteAssociation4:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetWebSchool4
+      RouteTableId: !Ref MainRouteTable
+
+Outputs:
+  VPCId:
+    Description: VPC ID
+    Value: !Ref WebSchoolVPC
+
+  IGWId:
+    Description: Internet Gateway ID
+    Value: !Ref IGWWebSchool
