@@ -9,7 +9,8 @@ jobs:
   deploy:
     name: Deploy to AWS
     runs-on: ubuntu-latest
-
+    environment:
+      name: manual-approval
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
